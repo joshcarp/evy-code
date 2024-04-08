@@ -1,0 +1,2300 @@
+repo_url,file_path,content
+https://github.com/joshcarp/evy-leetcode.git,0078-subsets.evy,"// 78. Subsets
+// Solved
+// Medium
+// Topics
+// Companies
+// Given an integer array nums of unique elements, return all possible
+// subsets
+// (the power set).
+// The solution set must not contain duplicate subsets. Return the solution in any order.
+// Example 1:
+// Input: nums = [1,2,3]
+// Output: [[],[1],[2],[1,2],[3],[1,3],[2,3],[1,2,3]]
+// Example 2:
+// Input: nums = [0]
+// Output: [[],[0]]
+// Constraints:
+// 1 <= nums.length <= 10
+// -10 <= nums[i] <= 10
+// All the numbers of nums are unique.
+
+func backtrack nums:[]num current:[]num ans:[][]num
+    if (len nums) == 0
+        ans = [current[:]] + ans
+        return
+    end
+    for range nums
+        backtrack nums[1:] current ans
+        current = current + [nums[0]]
+        if (len nums) > 1
+            backtrack nums[1:] current ans
+        else
+            backtrack [] current ans
+        end
+        current = current[:-1]
+    end
+end
+
+func subsets:[][]num nums:[]num
+    current:[]num
+    ans:[][]num
+    backtrack nums current ans
+    return ans
+end
+
+fails := 0
+total := 0
+
+func assertsameelements want:[][]num got:[][]num
+    wantset := {}
+    extraelements:[]string
+    missingelements:[]string
+    failed := false
+    for elem := range want
+        wantset[sprintf ""%v"" elem] = true
+    end
+    gotset := {}
+    for elem := range got
+        gotset[sprintf ""%v"" elem] = true
+    end
+    for key := range wantset
+        if !(has gotset key)
+            printf ""missing element int got %v\n"" key
+            extraelements = extraelements + [key]
+            failed = true
+        end
+    end
+    for key := range gotset
+        if !(has wantset key)
+            printf ""extra element int got %v\n"" key
+            missingelements = missingelements + [key]
+            failed = true
+        end
+    end
+    if (len missingelements) > 0
+        printf ""missing elements: %v\n"" missingelements
+    end
+    if (len extraelements) > 0
+        printf ""extra elements: %v\n"" extraelements
+    end
+    if failed
+        fails = fails + 1
+    end
+    total = total + 1
+end
+
+func finished
+    printf ""%v of %v tests passed\n"" (total - fails) total
+end
+
+// -- Test Cases Start -- //
+assertsameelements [[1 2 3] [1 2] [1 3] [1] [2 3] [2] [3] []] (subsets [1 2 3])
+assertsameelements [[0] []] (subsets [0])
+assertsameelements [[]] (subsets [])
+// -- Test Cases End -- //
+finished
+"
+https://github.com/joshcarp/evy-leetcode.git,0121-best-time-to-buy-and-sell-stock.evy,"// 121. Best Time to Buy and Sell Stock
+// Solved
+// Easy
+// Topics
+// Companies
+// You are given an array prices where prices[i] is the price of a given stock on the ith day.
+// You want to maximize your profit by choosing a single day to buy one stock and choosing a different day in the future to sell that stock.
+// Return the maximum profit you can achieve from this transaction. If you cannot achieve any profit, return 0.
+// Example 1:
+// Input: prices = [7,1,5,3,6,4]
+// Output: 5
+// Explanation: Buy on day 2 (price = 1) and sell on day 5 (price = 6), profit = 6-1 = 5.
+// Note that buying on day 2 and selling on day 1 is not allowed because you must buy before you sell.
+// Example 2:
+// Input: prices = [7,6,4,3,1]
+// Output: 0
+// Explanation: In this case, no transactions are done and the max profit = 0.
+// Constraints:
+// 1 <= prices.length <= 105
+// 0 <= prices[i] <= 104
+
+func maxProfit:num prices:[]num
+    mprofit := 0
+    lowest := prices[0]
+    for price := range prices
+        mprofit = max mprofit (price - lowest)
+        lowest = min lowest price
+    end
+    return mprofit
+end
+
+fails := 0
+total := 0
+
+func assert want:any got:any
+    total = total + 1
+    if want != got
+        fails = fails + 1
+        printf ""want != got: want %v got %v\n"" want got
+    end
+end
+
+func finished
+    printf ""%v of %v tests passed\n"" (total - fails) total
+end
+
+// -- Test Cases Start -- //
+assert 5 (maxProfit [7 1 5 3 6 4])
+assert 0 (maxProfit [7 6 4 3 1])
+// -- Test Cases End -- //
+finished
+"
+https://github.com/joshcarp/evy-leetcode.git,0208-implement-trie-prefix-tree.evy,"// 208. Implement Trie (Prefix Tree)
+// Solved
+// Medium
+// Topics
+// Companies
+// A trie (pronounced as ""try"") or prefix tree is a tree data structure used to efficiently store and retrieve keys in a dataset of strings. There are various applications of this data structure, such as autocomplete and spellchecker.
+// Implement the Trie class:
+// Trie() Initializes the trie object.
+// void insert(String word) Inserts the string word into the trie.
+// boolean search(String word) Returns true if the string word is in the trie (i.e., was inserted before), and false otherwise.
+// boolean startsWith(String prefix) Returns true if there is a previously inserted string word that has the prefix prefix, and false otherwise.
+// Example 1:
+// Input
+// [""Trie"", ""insert"", ""search"", ""search"", ""startsWith"", ""insert"", ""search""]
+// [[], [""apple""], [""apple""], [""app""], [""app""], [""app""], [""app""]]
+// Output
+// [null, null, true, false, true, null, true]
+// Explanation
+// Trie trie = new Trie();
+// trie.insert(""apple"");
+// trie.search(""apple"");   // return True
+// trie.search(""app"");     // return False
+// trie.startsWith(""app""); // return True
+// trie.insert(""app"");
+// trie.search(""app"");     // return True
+// Constraints:
+// 1 <= word.length, prefix.length <= 2000
+// word and prefix consist only of lowercase English letters.
+// At most 3 * 104 calls in total will be made to insert, search, and startsWith.
+
+func Node:{}any
+    self:{}any
+    self.next = {}
+    self.isend = false
+    return self
+end
+
+func Trie:{}any
+    self:{}any
+    self.data = (Node)
+    return self
+end
+
+func insert self:{}any word:string
+    node:{}any
+    node = self.data.({}any)
+    for ch := range word
+        next := node.next.({}any)
+        if !(has next ch)
+            next[ch] = (Node)
+        end
+        node = next[ch].({}any)
+    end
+    node.isend = true
+end
+
+func search:bool self:{}any word:string
+    node:{}any
+    node = self.data.({}any)
+    for ch := range word
+        next := node.next.({}any)
+        if !(has next ch)
+            return false
+        end
+        node = next[ch].({}any)
+    end
+    return node.isend.(bool)
+end
+
+func startsWith:bool self:{}any prefix:string
+    node:{}any
+    node = self.data.({}any)
+    for ch := range prefix
+        next := node.next.({}any)
+        if !(has next ch)
+            return false
+        end
+        node = next[ch].({}any)
+    end
+    return true
+end
+
+fails := 0
+total := 0
+debug := false
+
+func assert want:any got:any
+    total = total + 1
+    if want != got
+        fails = fails + 1
+        printf ""want != got: want %v got %v\n"" want got
+    else if debug
+        printf ""assertion passed: want %v got %v\n"" want got
+    end
+end
+
+func finished
+    printf ""%v of %v tests passed\n"" (total - fails) total
+end
+
+// -- Test Cases Start -- //
+trie := (Trie)
+insert trie ""apple""
+assert true (search trie ""apple"")
+assert false (search trie ""app"")
+assert true (startsWith trie ""app"")
+insert trie ""app""
+assert true (search trie ""app"")
+// -- Test Cases End -- //
+finished
+"
+https://github.com/joshcarp/evy-leetcode.git,0001-two-sum.evy,"// 1. Two Sum
+// Solved
+// Easy
+// Topics
+// Companies
+// Hint
+// Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target.
+// You may assume that each input would have exactly one solution, and you may not use the same element twice.
+// You can return the answer in any order.
+// Example 1:
+// Input: nums = [2,7,11,15], target = 9
+// Output: [0,1]
+// Explanation: Because nums[0] + nums[1] == 9, we return [0, 1].
+// Example 2:
+// Input: nums = [3,2,4], target = 6
+// Output: [1,2]
+// Example 3:
+// Input: nums = [3,3], target = 6
+// Output: [0,1]
+// Constraints:
+// 2 <= nums.length <= 104
+// -109 <= nums[i] <= 109
+// -109 <= target <= 109
+// Only one valid answer exists.
+// Follow-up: Can you come up with an algorithm that is less than O(n2) time complexity?
+
+func twosum:[]num nums:[]num target:num
+    m:{}num
+    for i := range (len nums)
+        v := nums[i]
+        if has m (sprintf ""%v"" (target - v))
+            return [m[sprintf ""%v"" (target - v)] i]
+        end
+        m[sprintf ""%v"" v] = i
+    end
+    return []
+end
+
+fails := 0
+total := 0
+
+func assert want:any got:any
+    total = total + 1
+    if want != got
+        fails = fails + 1
+        printf ""want != got: want %v got %v\n"" want got
+    end
+end
+
+func finished
+    printf ""%v of %v tests passed\n"" (total - fails) total
+end
+
+// -- Test Cases Start -- //
+assert [0 1] (twosum [2 7 11 15] 9)
+assert [1 2] (twosum [3 2 4] 6)
+assert [0 1] (twosum [3 3] 6)
+// -- Test Cases End -- //
+finished
+"
+https://github.com/joshcarp/evy-leetcode.git,0199-binary-tree-right-side-view.evy,"// 199. Binary Tree Right Side View
+// Solved
+// Medium
+// Topics
+// Companies
+// Given the root of a binary tree, imagine yourself standing on the right side of it, return the values of the nodes you can see ordered from top to bottom.
+// Example 1:
+// Input: root = [1,2,3,null,5,null,4]
+// Output: [1,3,4]
+// Example 2:
+// Input: root = [1,null,3]
+// Output: [1,3]
+// Example 3:
+// Input: root = []
+// Output: []
+// Constraints:
+// The number of nodes in the tree is in the range [0, 100].
+// -100 <= Node.val <= 100
+
+func rightSideView:[]any treearr:[]any
+    root:any
+    root = buildBinaryTree treearr
+    queue := []
+    res := []
+    queue = queue + [root]
+    while (len queue) > 0
+        size := len queue
+        for i := range 0 size
+            node:{}any
+            node = queue[0].({}any)
+            queue = queue[1:]
+            if (has node ""val"") and i == size - 1
+                res = res + [node[""val""]]
+            end
+            if (has node ""left"") and node[""left""].({}any) != {}
+                queue = queue + [node[""left""]]
+            end
+            if (has node ""right"") and node[""right""].({}any) != {}
+                queue = queue + [node[""right""]]
+            end
+        end
+    end
+    return res
+end
+
+fails := 0
+total := 0
+
+func assert want:any got:any
+    total = total + 1
+    if want != got
+        fails = fails + 1
+        printf ""want != got: want %v got %v\n"" want got
+    end
+end
+
+func finished
+    printf ""%v of %v tests passed\n"" (total - fails) total
+end
+
+func buildBinaryTree:{}any tree:[]any
+    root:{}any
+    rootany:any
+    rootany = root
+    queue := [rootany]
+    for i := range 0 (len tree)
+        if (len queue) == 0
+            break
+        end
+        node:{}any
+        node = queue[0].({}any)
+        queue = queue[1:]
+        anynull:any
+        anynull = ""null""
+        if tree[i] != anynull
+            node[""val""] = tree[i]
+            node[""left""] = {}
+            node[""right""] = {}
+            queue = queue + [node[""left""]]
+            queue = queue + [node[""right""]]
+        end
+    end
+    return root
+end
+
+// -- Test Cases Start -- //
+
+assert [1 3 4 """"][:-1] (rightSideView [1 2 3 ""null"" 5 ""null"" 4])
+assert [1 3 """"][:-1] (rightSideView [1 ""null"" 3])
+assert [] (rightSideView [])
+assert [1 3 4 """"][:-1] (rightSideView [1 2 3 4])
+// // -- Test Cases End -- //
+finished
+"
+https://github.com/joshcarp/evy-leetcode.git,evy-build-binary-tree.evy,"// buildBinaryTree takes a list of strings and returns a binary tree.
+
+func buildBinaryTree:{}any tree:[]any
+    root:{}any
+    rootany:any
+    rootany = root
+    queue := [rootany]
+    for i := range 0 (len tree)
+        if (len queue) == 0
+            break
+        end
+        node:{}any
+        node = queue[0].({}any)
+        queue = queue[1:]
+        anynull:any
+        anynull = ""null""
+        if tree[i] != anynull
+            node[""val""] = tree[i]
+            node[""left""] = {}
+            node[""right""] = {}
+            queue = queue + [node[""left""]]
+            queue = queue + [node[""right""]]
+        end
+    end
+    return root
+end
+
+fails := 0
+total := 0
+
+func assert want:any got:any
+    total = total + 1
+    if want != got
+        fails = fails + 1
+        printf ""want != got: want %v got %v\n"" want got
+    end
+end
+
+func finished
+    printf ""%v of %v tests passed\n"" (total - fails) total
+end
+
+// -- Test Cases Start -- //
+tree := buildBinaryTree [""a"" ""b"" ""c""]
+assert ""a"" tree[""val""]
+assert ""b"" tree[""left""].({}any)[""val""]
+assert ""c"" tree[""right""].({}any)[""val""]
+
+tree2 := buildBinaryTree [1 2 3]
+assert 1 tree2[""val""]
+assert 2 tree2[""left""].({}any)[""val""]
+assert 3 tree2[""right""].({}any)[""val""]
+
+tree3 := buildBinaryTree [""a""]
+assert ""a"" tree3[""val""]
+
+// // -- Test Cases End -- //
+finished
+"
+https://github.com/joshcarp/evy-leetcode.git,0198-house-robber.evy,"// 198. House Robber
+// Solved
+// Medium
+// Topics
+// Companies
+// You are a professional robber planning to rob houses along a street. Each house has a certain amount of money stashed, the only constraint stopping you from robbing each of them is that adjacent houses have security systems connected and it will automatically contact the police if two adjacent houses were broken into on the same night.
+// Given an integer array nums representing the amount of money of each house, return the maximum amount of money you can rob tonight without alerting the police.
+// Example 1:
+// Input: nums = [1,2,3,1]
+// Output: 4
+// Explanation: Rob house 1 (money = 1) and then rob house 3 (money = 3).
+// Total amount you can rob = 1 + 3 = 4.
+// Example 2:
+// Input: nums = [2,7,9,3,1]
+// Output: 12
+// Explanation: Rob house 1 (money = 2), rob house 3 (money = 9) and rob house 5 (money = 1).
+// Total amount you can rob = 2 + 9 + 1 = 12.
+// Constraints:
+// 1 <= nums.length <= 100
+// 0 <= nums[i] <= 400
+
+func rob:num nums:[]num
+    n := len nums
+    max_steal := nums
+    if n > 1
+        max_steal[1] = max nums[0] nums[1]
+    end
+    for i := range 2 n
+        max_steal[i] = max (max_steal[i - 1]) (max_steal[i - 2] + nums[i])
+    end
+    return max_steal[-1]
+end
+
+fails := 0
+total := 0
+
+func assert want:any got:any
+    total = total + 1
+    if want != got
+        fails = fails + 1
+        printf ""want != got: want %v got %v\n"" want got
+    end
+end
+
+func finished
+    printf ""%v of %v tests passed\n"" (total - fails) total
+end
+
+// -- Test Cases Start -- //
+assert 4 (rob [1 2 3 1])
+assert 12 (rob [2 7 9 3 1])
+// -- Test Cases End -- //
+finished
+"
+https://github.com/joshcarp/evy-leetcode.git,0567-permutation-in-string.evy,"// 567. Permutation in String
+// Solved
+// Medium
+// Topics
+// Companies
+// Hint
+// Given two strings s1 and s2, return true if s2 contains a permutation of s1, or false otherwise.
+// In other words, return true if one of s1's permutations is the substring of s2.
+// Example 1:
+// Input: s1 = ""ab"", s2 = ""eidbaooo""
+// Output: true
+// Explanation: s2 contains one permutation of s1 (""ba"").
+// Example 2:
+// Input: s1 = ""ab"", s2 = ""eidboaoo""
+// Output: false
+// Constraints:
+// 1 <= s1.length, s2.length <= 104
+// s1 and s2 consist of lowercase English letters.
+
+func checkInclusion:bool s1:string s2:string
+    if (len s1) > (len s2)
+        return false
+    end
+    s1count:{}num
+    s2count:{}num
+    for i := range (len s1)
+        if !(has s1count s1[i])
+            s1count[s1[i]] = 0
+            s2count[s2[i]] = 0
+        end
+        s1count[s1[i]] = s1count[s1[i]] + 1
+        s2count[s2[i]] = s2count[s2[i]] + 1
+    end
+    l := 0
+    while l + (len s1) < (len s2)
+        if s1count == s2count
+            return true
+        end
+        start := s2[l] // The character at the start of the current window. To be removed
+        finish := s2[l + (len s1)] // the character after the end of the current window. To be added
+        s2count[start] = s2count[start] - 1
+        if s2count[start] == 0
+            del s2count start
+        end
+        if !(has s2count finish)
+            s2count[finish] = 0
+        end
+        s2count[finish] = s2count[finish] + 1
+        l = l + 1
+    end
+    return s1count == s2count
+
+end
+
+fails := 0
+total := 0
+
+func assert want:any got:any
+    total = total + 1
+    if want != got
+        fails = fails + 1
+        printf ""want != got: want %v got %v\n"" want got
+    end
+end
+
+func finished
+    printf ""%v of %v tests passed\n"" (total - fails) total
+end
+
+// -- Test Cases Start -- //
+assert true (checkInclusion ""ab"" ""ab"")
+assert true (checkInclusion ""ab"" ""eidbaooo"")
+assert false (checkInclusion ""ab"" ""eidboaoo"")
+assert false (checkInclusion ""ab"" ""a"")
+// // -- Test Cases End -- //
+finished
+"
+https://github.com/joshcarp/evy-leetcode.git,0509-fibonacci-number.evy,"// 509. Fibonacci Number
+// Easy
+// Topics
+// Companies
+// The Fibonacci numbers, commonly denoted F(n) form a sequence, called the Fibonacci sequence, such that each number is the sum of the two preceding ones, starting from 0 and 1. That is,
+// F(0) = 0, F(1) = 1
+// F(n) = F(n - 1) + F(n - 2), for n > 1.
+// Given n, calculate F(n).
+// Example 1:
+// Input: n = 2
+// Output: 1
+// Explanation: F(2) = F(1) + F(0) = 1 + 0 = 1.
+// Example 2:
+// Input: n = 3
+// Output: 2
+// Explanation: F(3) = F(2) + F(1) = 1 + 1 = 2.
+// Example 3:
+// Input: n = 4
+// Output: 3
+// Explanation: F(4) = F(3) + F(2) = 2 + 1 = 3.
+// Constraints:
+// 0 <= n <= 30
+
+func fibonacci:num n:num
+    zero := 0
+    one := 1
+    for range 1 n
+        tmp := one
+        one = one + zero
+        zero = tmp
+    end
+    return one
+end
+
+fails := 0
+total := 0
+
+func assert want:any got:any
+    total = total + 1
+    if want != got
+        fails = fails + 1
+        printf ""want != got: want %v got %v\n"" want got
+    end
+end
+
+func finished
+    printf ""%v of %v tests passed\n"" (total - fails) total
+end
+
+// -- Test Cases Start -- //
+assert 1 (fibonacci 2)
+assert 2 (fibonacci 3)
+assert 3 (fibonacci 4)
+// -- Test Cases End -- //
+finished
+"
+https://github.com/joshcarp/evy-leetcode.git,0003-longest-substring-without-repeating-characters.evy,"// 3. Longest Substring Without Repeating Characters
+// Solved
+// Medium
+// Topics
+// Companies
+// Given a string s, find the length of the longest
+// substring without repeating characters.
+// Example 1:
+// Input: s = ""abcabcbb""
+// Output: 3
+// Explanation: The answer is ""abc"", with the length of 3.
+// Example 2:
+// Input: s = ""bbbbb""
+// Output: 1
+// Explanation: The answer is ""b"", with the length of 1.
+// Example 3:
+// Input: s = ""pwwkew""
+// Output: 3
+// Explanation: The answer is ""wke"", with the length of 3.
+// Notice that the answer must be a substring, ""pwke"" is a subsequence and not a substring.
+// Constraints:
+// 0 <= s.length <= 5 * 104
+// s consists of English letters, digits, symbols and spaces.
+
+func lengthOfLongestSubstring:num s:string
+    seen:{}num
+    longestsubstring := 0
+    startIdx := 0
+    for i := range (len s)
+        elem := s[i]
+        if has seen elem
+            startIdx = max startIdx (seen[elem] + 1)
+        end
+        seen[elem] = i
+        longestsubstring = max longestsubstring (i - startIdx + 1)
+    end
+    return longestsubstring
+end
+
+fails := 0
+total := 0
+
+func assert want:any got:any
+    total = total + 1
+    if want != got
+        fails = fails + 1
+        printf ""want != got: want %v got %v\n"" want got
+    end
+end
+
+func finished
+    printf ""%v of %v tests passed\n"" (total - fails) total
+end
+
+// -- Test Cases Start -- //
+assert 3 (lengthOfLongestSubstring ""abcabcbb"")
+assert 1 (lengthOfLongestSubstring ""bbbbb"")
+assert 3 (lengthOfLongestSubstring ""pwwkew"")
+// -- Test Cases End -- //
+finished
+"
+https://github.com/joshcarp/evy-leetcode.git,0217-contains-duplicate.evy,"// 217. Contains Duplicate
+// Solved
+// Easy
+// Topics
+// Companies
+// Given an integer array nums, return true if any value appears at least twice in the array, and return false if every element is distinct.
+// Example 1:
+// Input: nums = [1,2,3,1]
+// Output: true
+// Example 2:
+// Input: nums = [1,2,3,4]
+// Output: false
+// Example 3:
+// Input: nums = [1,1,1,3,3,4,3,2,4,2]
+// Output: true
+
+func containsDuplicate:bool nums:[]num
+    seen := {}
+    for ii := range nums
+        i := sprint ii
+        if has seen i
+            return true
+        end
+        seen[i] = true
+    end
+    return false
+end
+
+fails := 0
+total := 0
+
+func assert want:any got:any
+    total = total + 1
+    if want != got
+        fails = fails + 1
+        printf ""want != got: want %v got %v\n"" want got
+    end
+end
+
+func finished
+    printf ""%v of %v tests passed\n"" (total - fails) total
+end
+
+// -- Test Cases Start -- //
+assert true (containsDuplicate [1 2 3 1])
+assert false (containsDuplicate [1 2 3 4])
+assert true (containsDuplicate [1 1 1 3 3 4 3 2 4 2])
+// -- Test Cases End -- //
+finished
+"
+https://github.com/joshcarp/evy-leetcode.git,0412-fizz-buzz.evy,"// 412. Fizz Buzz
+// Easy
+// Topics
+// Companies
+// Given an integer n, return a string array answer (1-indexed) where:
+// answer[i] == ""FizzBuzz"" if i is divisible by 3 and 5.
+// answer[i] == ""Fizz"" if i is divisible by 3.
+// answer[i] == ""Buzz"" if i is divisible by 5.
+// answer[i] == i (as a string) if none of the above conditions are true.
+// Example 1:
+// Input: n = 3
+// Output: [""1"",""2"",""Fizz""]
+// Example 2:
+// Input: n = 5
+// Output: [""1"",""2"",""Fizz"",""4"",""Buzz""]
+// Example 3:
+// Input: n = 15
+// Output: [""1"",""2"",""Fizz"",""4"",""Buzz"",""Fizz"",""7"",""8"",""Fizz"",""Buzz"",""11"",""Fizz"",""13"",""14"",""FizzBuzz""]
+// Constraints:
+// 1 <= n <= 104
+
+func fizzbuzz:[]string n:num
+    ans:[]string
+    for i := range 1 (n + 1)
+        s:string
+        if i % 3 == 0
+            s = s + ""Fizz""
+        end
+        if i % 5 == 0
+            s = s + ""Buzz""
+        end
+        if s == """"
+            s = sprintf ""%v"" i
+        end
+        ans = ans + [s]
+    end
+    return ans
+end
+
+fails := 0
+total := 0
+
+func assert want:any got:any
+    total = total + 1
+    if want != got
+        fails = fails + 1
+        printf ""want != got: want %v got %v\n"" want got
+    end
+end
+
+func finished
+    printf ""%v of %v tests passed\n"" (total - fails) total
+end
+
+// -- Test Cases Start -- //
+assert [""1"" ""2"" ""Fizz""] (fizzbuzz 3)
+assert [""1"" ""2"" ""Fizz"" ""4"" ""Buzz""] (fizzbuzz 5)
+assert [""1"" ""2"" ""Fizz"" ""4"" ""Buzz"" ""Fizz"" ""7"" ""8"" ""Fizz"" ""Buzz"" ""11"" ""Fizz"" ""13"" ""14"" ""FizzBuzz""] (fizzbuzz 15)
+// -- Test Cases End -- //
+finished
+"
+https://github.com/evylang/evy.git,stringart.evy,"// String art
+// Inpsired by https://youtu.be/dLiSXcaBZmk
+
+pi := 3.141592654
+
+lissajousA := 0
+lissajousB := 0
+lissajousPct := 0
+thetaOffset := 0
+nails:[][]num
+
+func drawall
+    draw 80 0.05 0.05 1 20
+    sleep 3
+    draw 80 0 0.05 2 1
+    sleep 3
+    draw 160 0 0.05 2 1
+    sleep 3
+    draw 160 0 0.05 4 1
+    sleep 3
+    drawAnimate 80 0.02
+    sleep 3
+    drawlAnimate 120 2 1 270 pi/4 0.02
+end
+
+func draw n:num dotInterval:num cordInterval:num a:num c:num
+    setnails n 0 0 0 0
+    clear ""black""
+    drawNails dotInterval
+    drawCords a c cordInterval
+end
+
+func drawl n:num a:num b:num pct:num toffset:num
+    setnails n a b pct toffset
+    clear ""black""
+    drawNails 0
+    drawCords 1 n/4 0
+end
+
+func drawAnimate n:num interval:num
+    for i := range n*2
+        draw n 0 0 1 i+1
+        sleep interval
+    end
+end
+
+func drawlAnimate n:num a:num b:num steps:num toffset:num interval:num
+    for p := range steps -1 -1
+        pct := p / steps
+        drawl n a b pct toffset*(1 - pct)
+        sleep interval
+    end
+end
+
+func drawNails interval:num
+    for i := range (len nails)
+        nail i
+        sleep interval
+    end
+end
+
+func drawCords a:num c:num interval:num
+    for i := range (len nails)
+        j := a * i + c
+        cord i j
+        nail i
+        nail j
+        sleep interval
+    end
+end
+
+func nail n:num
+    color ""orange""
+    xy := pos n
+    move xy[0] xy[1]
+    circle 0.6
+end
+
+func cord i:num j:num
+    ixy := pos i
+    jxy := pos j
+    color ""lightgreen""
+    width 0.3
+    move ixy[0] ixy[1]
+    line jxy[0] jxy[1]
+end
+
+func pos:[]num n:num
+    return nails[n % (len nails)]
+end
+
+func setnails n:num a:num b:num pct:num toffset:num
+    if (len nails) == n and lissajousA == a and lissajousB == b and lissajousPct == pct and thetaOffset == toffset
+        // No change to computed nail positions
+        return
+    end
+    lissajousA = a
+    lissajousB = b
+    lissajousPct = pct
+    thetaOffset = toffset
+    nails = []
+    for i := range n
+        theta := thetaOffset + (pi * 2 * i / n)
+        nails = nails + [(calcpos theta)]
+    end
+end
+
+func calcpos:[]num theta:num
+    cpos := circlePos theta
+    lpos := lissajousPos theta
+    x := interpolate lpos[0] cpos[0] lissajousPct
+    y := interpolate lpos[1] cpos[1] lissajousPct
+    return [(toCanvas x) (toCanvas y)]
+end
+
+func circlePos:[]num theta:num
+    x := cos theta
+    y := sin theta
+    return [x y]
+end
+
+func lissajousPos:[]num theta:num
+    x := sin lissajousA*theta
+    y := sin lissajousB*theta
+    return [x y]
+end
+
+func toCanvas:num n:num
+    return n * 40 + 50
+end
+
+func interpolate:num a:num b:num pct:num
+    return a * pct + b * (1 - pct)
+end
+
+// Still working on this one
+// drawlAnimate 80 1 4 100 0 0.02
+
+drawall
+"
+https://github.com/evylang/evy.git,movingdot.evy,"for i := range 0 100 0.1
+    clear
+    dot i 50
+
+    sleep 0.01
+end
+
+func dot x:num y:num
+    color ""red""
+    move x y
+    circle 10
+end
+"
+https://github.com/evylang/evy.git,bounce.evy,"background := ""hsl(0deg 0% 0% / 10%)""
+x := 10
+y := 50
+s := 1
+width 1
+fill background
+stroke ""red""
+
+on animate
+    clear background
+    move x y
+    circle 10
+    x = x + s
+    if x < 10 or x > 90
+        s = -s
+    end
+end
+"
+https://github.com/evylang/evy.git,juggle.evy,"// increase `s` for highter speed
+// try 5.1 vs 5 to visualize rounding errors
+s := 0.5
+radius := 5
+
+colors := [""red"" ""orange"" ""gold"" ""forestgreen"" ""blue"" ""indigo"" ""purple"" ""deeppink""]
+dots := [
+    {x:(pos 0) y:(pos 2) dx:s dy:s}
+    {x:(pos 1) y:(pos 3) dx:s dy:s}
+    {x:(pos 2) y:(pos 4) dx:s dy:-s}
+    {x:(pos 3) y:(pos 3) dx:s dy:-s}
+    {x:(pos 4) y:(pos 2) dx:-s dy:-s}
+    {x:(pos 3) y:(pos 1) dx:-s dy:-s}
+    {x:(pos 2) y:(pos 0) dx:-s dy:s}
+    {x:(pos 1) y:(pos 1) dx:-s dy:s}
+]
+
+for i := range (len dots)
+    dots[i].radius = radius
+    dots[i].color = i
+end
+
+func pos:num i:num
+    l := (100 - 2 * radius) / 4
+    return radius + i * l
+end
+
+on animate
+    clear
+
+    for dot := range dots
+        update dot
+        draw dot colors[dot.color]
+    end
+end
+
+func update dot:{}num
+    dot.x = dot.x + dot.dx
+    dot.y = dot.y + dot.dy
+    dot.dx = delta dot.dx dot.x
+    dot.dy = delta dot.dy dot.y
+end
+
+func delta:num d:num n:num
+    if n >= radius and n < 100 - radius
+        return d
+    end
+    return -d
+end
+
+func draw dot:{}num col:string
+    color col
+    move dot.x dot.y
+    circle dot.radius
+end
+"
+https://github.com/evylang/evy.git,splashtrig.evy,"sa := -0.007
+sb := -0.006
+sc := -0.005
+sd := -0.004
+se := -0.003
+radius := 5
+
+pi := 3.141593
+tau := 2 * pi
+
+colors := [
+    ""red"" ""orange"" ""gold"" ""forestgreen"" ""blue"" ""indigo"" ""purple"" ""deeppink""
+]
+dots := [
+    {phase:(0 / 8) orbit:10 s:sa}
+    {phase:(1 / 8) orbit:10 s:sa}
+    {phase:(2 / 8) orbit:10 s:sa}
+    {phase:(3 / 8) orbit:10 s:sa}
+    {phase:(4 / 8) orbit:10 s:sa}
+    {phase:(5 / 8) orbit:10 s:sa}
+    {phase:(6 / 8) orbit:10 s:sa}
+    {phase:(7 / 8) orbit:10 s:sa}
+    {phase:(0 / 8) orbit:20 s:sb}
+    {phase:(1 / 8) orbit:20 s:sb}
+    {phase:(2 / 8) orbit:20 s:sb}
+    {phase:(3 / 8) orbit:20 s:sb}
+    {phase:(4 / 8) orbit:20 s:sb}
+    {phase:(5 / 8) orbit:20 s:sb}
+    {phase:(6 / 8) orbit:20 s:sb}
+    {phase:(7 / 8) orbit:20 s:sb}
+    {phase:(0 / 8) orbit:30 s:sc}
+    {phase:(1 / 8) orbit:30 s:sc}
+    {phase:(2 / 8) orbit:30 s:sc}
+    {phase:(3 / 8) orbit:30 s:sc}
+    {phase:(4 / 8) orbit:30 s:sc}
+    {phase:(5 / 8) orbit:30 s:sc}
+    {phase:(6 / 8) orbit:30 s:sc}
+    {phase:(7 / 8) orbit:30 s:sc}
+    {phase:(0 / 8) orbit:40 s:sd}
+    {phase:(1 / 8) orbit:40 s:sd}
+    {phase:(2 / 8) orbit:40 s:sd}
+    {phase:(3 / 8) orbit:40 s:sd}
+    {phase:(4 / 8) orbit:40 s:sd}
+    {phase:(5 / 8) orbit:40 s:sd}
+    {phase:(6 / 8) orbit:40 s:sd}
+    {phase:(7 / 8) orbit:40 s:sd}
+    {phase:(0 / 8) orbit:50 s:se}
+    {phase:(1 / 8) orbit:50 s:se}
+    {phase:(2 / 8) orbit:50 s:se}
+    {phase:(3 / 8) orbit:50 s:se}
+    {phase:(4 / 8) orbit:50 s:se}
+    {phase:(5 / 8) orbit:50 s:se}
+    {phase:(6 / 8) orbit:50 s:se}
+    {phase:(7 / 8) orbit:50 s:se}
+]
+
+for i := range (len dots)
+    dots[i].radius = radius
+    dots[i].color = i
+end
+
+on animate
+    // 2% opacity leaves trails on movement
+    clear ""hsl(0deg 100% 100% / 2%)""
+
+    for dot := range dots
+        update dot
+        draw dot colors[dot.color % (len colors)]
+    end
+end
+
+func update dot:{}num
+    dot.phase = dot.phase + dot.s
+end
+
+func draw dot:{}num col:string
+    color col
+    x := 50 + dot.orbit * (cos (tau * dot.phase))
+    y := 50 + dot.orbit * (sin (tau * dot.phase))
+    move x y
+    circle dot.radius
+end
+"
+https://github.com/evylang/evy.git,welcome.evy,"move 10 20
+line 50 50
+rect 25 25
+color ""red""
+circle 10
+
+x := 12
+print ""x:"" x
+if x > 10
+    print ""🍦 big x""
+end
+"
+https://github.com/evylang/evy.git,math.evy,"pi := 3.14159265
+e := 2.718281828459045
+
+print ""rand1"" (rand1)
+print ""rand 10"" (rand 10)
+print
+print ""min 3 2:"" (min 3 2)
+print ""max 3 2:"" (max 3 2)
+print
+print ""floor 2.6:"" (floor 2.6)
+print ""ceil 2.4:"" (floor 2.4)
+print ""round 2.6:"" (round 2.6)
+print
+print ""pow 2 3:"" (pow 2 3)
+print ""log e:"" (log e)
+print ""sqrt 2:"" (sqrt 2)
+print
+print ""sin pi:"" (sin pi)
+print ""cos pi:"" (cos pi)
+print ""atan2 0 0:"" (atan2 0 0)
+"
+https://github.com/evylang/evy.git,strings.evy,"s := ""Hello World!""
+
+print ""s:"" s
+print ""s+s:"" s+s
+print ""s[1:-1]:"" s[1:-1]
+print
+print ""upper s:"" (upper s)
+print ""lower s:"" (lower s)
+print ""index s \""e\"":"" (index s ""e"")
+print
+print ""startswith \""Hello\"":"" (startswith s ""Hello"")
+print ""startswith \""hello\"":"" (startswith s ""hello"")
+print ""endswith \""World!\"":"" (endswith s ""World!"")
+print ""endswith \""World\"": "" (endswith s ""World"")
+print
+print ""replace s \""l\"" \""L\"":"" (replace s ""l"" ""L"")
+print ""trim s \""H!\"":"" (trim s ""H!"")
+"
+https://github.com/evylang/evy.git,helloworld.evy,"print ""👋🌏 Hello, World!""
+"
+https://github.com/evylang/evy.git,echo.evy,"print ""Write something, press enter and enjoy the echo.""
+while true
+    s := read
+    print s s s
+end
+"
+https://github.com/evylang/evy.git,events.evy,"x := 50
+y := 50
+dy := 2
+radius := 5
+stopped := false
+speed := 0.5
+hue := 0
+
+dot x y radius hue
+
+on animate
+    if stopped
+        return
+    end
+    clear
+    y = y + dy * speed
+    dot x y radius hue
+    if y >= 100 - radius or y <= radius
+        dy = dy * -1
+    end
+end
+
+on key k:string
+    print ""key"" k
+    if k == "" ""
+        stopped = !stopped
+    else if k == ""ArrowUp""
+        hue = hue + 5
+    else if k == ""ArrowDown""
+        hue = hue - 5
+    end
+    dot x y radius hue
+end
+
+// update x position with x-slider
+// update speed with y-slider
+on input id:string val:string
+    if id == ""sliderx""
+        x = str2num val
+    else
+        s := str2num val
+        speed = s * 0.01
+    end
+    dot x y radius hue
+end
+
+func dot x:num y:num radius:num hue:num
+    hsl hue 100 50
+    move x y
+    circle radius
+end
+
+func hsl hue:num sat:num light:num
+    s := sprintf ""hsl(%.0fdeg %.0f%% %.0f%%)"" hue%360 sat light
+    color s
+end
+"
+https://github.com/evylang/evy.git,coords.evy,"grid
+print ""Move mouse or touch to print coordinates""
+
+on move x:num y:num
+    print ""x:"" (round x) ""y:"" (round y)
+end
+"
+https://github.com/evylang/evy.git,draw.evy,"down := false
+width 1
+
+on down x:num y:num
+    down = true
+    move x y
+end
+
+on up
+    down = false
+end
+
+on move x:num y:num
+    if down
+        line x y
+    end
+end
+"
+https://github.com/evylang/evy.git,ellipse.evy,"labels := [""x"" ""y"" ""radX"" ""radY"" ""rot°"" ""start°"" ""end°""]
+vals := [50 60 30 17 5 0 180]
+cnt := len vals
+cur := 1
+w := 11
+
+print ""Watermelon, anyone?""
+print ""🍉""
+print ""Use arrow keys or drag numbers""
+print ""for your perfect piece.""
+
+draw
+
+func draw
+    clear ""hsl(210deg 5% 15%)"" // near black
+    drawEllipse
+    drawText
+    drawHighlight cur
+end
+
+func drawEllipse
+    width 2
+    fill ""red""
+    stroke ""darkgreen""
+    ellipse vals[0] vals[1] vals[2] vals[3] vals[4] vals[5] vals[6]
+end
+
+func drawText
+    font {size:2.7 style:""italic"" family:""Fira Code, monospace""}
+    width 0.2
+    fill ""hsl(210deg 13% 72%)"" // light grey
+    move 2 15
+    text ""// ""
+    for i := range (len labels)
+        move i*w+20 15
+        text (sprintf ""%5s"" labels[i])
+    end
+    font {size:2.7 style:""normal""}
+    fill ""hsl(27deg 100% 74%)"" // orange
+    move 2 10
+    text ""ellipse""
+    fill ""hsl(204deg 100% 75%)"" // ligth  blue
+    for i := range (len labels)
+        move i*w+20 10
+        text (sprintf ""%5.0f"" vals[i])
+    end
+
+end
+
+func drawHighlight i:num
+    fill ""none""
+    stroke ""white""
+    width 0.4
+    x := i * w + 20
+    move x-1 9
+    rect 10 4
+end
+
+// keyboard interaction
+on key k:string
+    if k == ""ArrowLeft""
+        cur = (cur + cnt - 1) % cnt
+    else if k == ""ArrowRight""
+        cur = (cur + 1) % cnt
+    else if k == ""ArrowUp""
+        vals[cur] = vals[cur] + 1
+    else if k == ""ArrowDown""
+        vals[cur] = max 0 vals[cur]-1
+    end
+    draw
+end
+
+// pointer interaction
+
+dragy := -1
+deltay := 0
+
+on down x:num y:num
+    if y < 20 and x > 18
+        cur = min (floor (x - 18)/w) (len labels)-1
+        dragy = y
+        draw
+    end
+end
+
+on up
+    dragy = -1
+    deltay = 0
+end
+
+on move x:num y:num
+    if dragy == -1
+        return
+    end
+    if x == 0 or x == 100 or y == 0 or y == 100
+        // stop animation when we leave the canvas
+        dragy = -1
+        deltay = 0
+        return
+    end
+    deltay = y - dragy
+    if deltay < 0
+        deltay = floor deltay
+    else
+        deltay = ceil deltay
+    end
+end
+
+on animate
+    if deltay == 0
+        return
+    end
+    if cur < 4
+        val := vals[cur] + deltay / 10
+        vals[cur] = max 0 (min 100 val)
+    else
+        vals[cur] = vals[cur] + deltay / 5
+    end
+    draw
+end
+"
+https://github.com/evylang/evy.git,tictactoetext.evy,"// x - bot
+// o - human
+
+playGame ""x"" (selectStrength)
+
+func selectStrength:num
+    print ""Select strength 1-3.""
+    while true
+        str := read
+        n := str2num str
+        if !err and n >= 1 and n <= 3
+            return n
+        end
+        printf ""💣 %q is not a valid strength (1-3). Try again.\n"" str
+    end
+    return -1
+end
+
+func playGame turn:string strength:num
+    board := newBoard
+    printAll strength board
+    while !(isGameover board)
+        if turn == ""x""
+            botTurn board strength
+        else
+            humanTurn board
+        end
+        printAll strength board
+        turn = next turn
+    end
+    result := winner board
+    if result == "".""
+        print ""Tie.""
+    else
+        printf ""%q wins.\n"" result
+    end
+end
+
+func newBoard:[]string
+    return [
+        ""."" ""."" "".""
+        ""."" ""."" "".""
+        ""."" ""."" "".""
+    ]
+end
+
+func isGameover:bool b:[]string
+    return (emptyCnt b) == 0 or (winner b) != "".""
+end
+
+func next:string turn:string
+    if turn == ""o""
+        return ""x""
+    end
+    return ""o""
+end
+
+func emptyCnt:num b:[]string
+    cnt := 0
+    for i := range 9
+        if b[i] == "".""
+            cnt = cnt + 1
+        end
+    end
+    return cnt
+end
+
+func winner:string b:[]string
+    if b[0] != ""."" and ((b[1] == b[0] and b[2] == b[0]) or (b[4] == b[0] and b[8] == b[0]) or (b[3] == b[0] and b[6] == b[0]))
+        return b[0]
+    end
+    if b[4] != ""."" and ((b[1] == b[4] and b[7] == b[4]) or (b[3] == b[4] and b[5] == b[4]) or (b[2] == b[4] and b[6] == b[4]))
+        return b[4]
+    end
+    if b[8] != ""."" and ((b[6] == b[8] and b[7] == b[8]) or (b[2] == b[8] and b[5] == b[8]))
+        return b[8]
+    end
+    return ""."" // no winner
+end
+
+func printAll strength:num b:[]string
+    cls
+    printNotes strength
+    printBoard b
+end
+
+func printNotes strength:num
+    printf ""Strength %0.f.\n\n"" strength
+    print ""Enter index for \""o\"" move:""
+    print ""0 1 2""
+    print ""3 4 5""
+    print ""6 7 8\n""
+end
+
+func printBoard b:[]string
+    print b[0] b[1] b[2]
+    print b[3] b[4] b[5]
+    print b[6] b[7] b[8]
+    print
+end
+
+func humanTurn b:[]string
+    while true
+        str := read
+        n := str2num str
+        if !err and n <= 8 and n >= 0 and b[n] == "".""
+            b[n] = ""o""
+            return
+        end
+        printf ""💣 %q is not a valid move (0-8, free fields). Try again.\n"" str
+    end
+end
+
+func botTurn b:[]string strength:num
+    if strength == 1
+        bot1Turn b
+    else if strength == 2
+        bot2Turn b
+    else
+        bot3Turn b
+    end
+end
+
+func bot1Turn b:[]string
+    target := rand (emptyCnt b)
+    cnt := 0
+    for i := range 9
+        if b[i] == "".""
+            if target == cnt
+                b[i] = ""x""
+                return
+            end
+            cnt = cnt + 1
+        end
+    end
+end
+
+func bot2Turn b:[]string
+    // try to win in next move
+    for i := range 9
+        if b[i] == "".""
+            b[i] = ""x""
+            if (winner b) == ""x""
+                return
+            end
+            b[i] = "".""
+        end
+    end
+    // try to stop ""o"" from winning in next move
+    for i := range 9
+        if b[i] == "".""
+            b[i] = ""o""
+            if (winner b) == ""o""
+                b[i] = ""x""
+                return
+            end
+            b[i] = "".""
+        end
+    end
+    // random move if no win or block possible
+    bot1Turn b
+end
+
+func bot3Turn b:[]string
+    e := emptyCnt b
+    if e == 9
+        bot1Turn b
+    else if e == 8 and b[4] == "".""
+        b[4] = ""x""
+    else if e == 8 // ""o"" on 4
+        corners := [0 2 6 8]
+        i := corners[rand 4]
+        b[i] = ""x""
+    else
+        minmax b ""x"" 0
+    end
+end
+
+func minmax:num b:[]string turn:string depth:num
+    if (isGameover b)
+        return score b depth
+    end
+    scores:[]num
+    moves:[]num
+    b2 := b[:]
+    turn2 := next turn
+    for i := range 9
+        if b[i] == "".""
+            b2[i] = turn
+            scores = scores + [(minmax b2 turn2 depth+1)]
+            moves = moves + [i]
+            b2[i] = "".""
+        end
+    end
+
+    idx:num
+    if turn == ""x""
+        idx = maxIndex scores
+    else
+        idx = minIndex scores
+    end
+    if depth == 0
+        b[moves[idx]] = turn
+    end
+    return scores[idx]
+end
+
+func score:num b:[]string depth:num
+    w := winner b
+    if w == ""x""
+        return 10 - depth
+    else if w == ""o""
+        return -10 + depth
+    end
+    return 0
+end
+
+func minIndex:num nums:[]num
+    nmin := nums[0]
+    idx := 0
+    for i := range 1 (len nums)
+        if nums[i] < nmin
+            nmin = nums[i]
+            idx = i
+        end
+    end
+    return idx
+end
+
+func maxIndex:num nums:[]num
+    nmax := nums[0]
+    idx := 0
+    for i := range 1 (len nums)
+        if nums[i] > nmax
+            nmax = nums[i]
+            idx = i
+        end
+    end
+    return idx
+end
+"
+https://github.com/evylang/evy.git,rand.evy,"while true
+    print ""╔════════════════════════╗""
+    print ""║ Guess my number (1-10) ║""
+    print ""╚════════════════════════╝""
+
+    n := 1 + (rand 10)
+    guess := readn
+
+    while guess != n
+        if guess < n
+            print guess ""Guess higher.""
+        else
+            print guess ""Guess lower.""
+        end
+        guess = readn
+    end
+    print guess ""You got it 🥳.""
+    sleep 2
+    cls
+end
+
+// readn reads a number.
+// If the input is not a number readn
+// prints an error and repeats prompt.
+func readn:num
+    while true
+        str := read
+        n := str2num str
+        if !err
+            return n
+        end
+        print ""💣 '""+str+""'is not a number. Try again.""
+    end
+    return -1
+end
+"
+https://github.com/evylang/evy.git,hanoi.evy,"// towers of hanoi
+
+colors := [""red"" ""orange"" ""gold"" ""green"" ""blue"" ""darkviolet"" ""violet"" ""black""]
+towers := [
+    []
+    [8 7 6 5 4 3 2 1]
+    []
+]
+
+selected := -1
+startTower := 1
+numPieces := (len towers[startTower])
+
+// Drawing / positioning
+towerx := [17 50 83]
+w := 5 // line width
+basey := 20
+font {align:""center"" baseline:""top""}
+
+width w
+linecap ""round""
+
+func drawTowers
+    clear ""white""
+    color ""black""
+    move 0 basey-(w / 2)
+    line 100 basey-(w / 2)
+    for tower := range 3
+        x := towerx[tower]
+        color ""black""
+        move x basey
+        line x basey+42
+        if tower == 2
+            text ""✨""
+        end
+        for n := range (len towers[tower])
+            y := n * w + (w / 2) + basey
+            if tower == selected and n == (len towers[tower]) - 1
+                y = y + w
+            end
+            piece := towers[tower][n]
+            pieceWidth := piece * 3 + 5
+            color colors[piece - 1]
+            move x-(pieceWidth / 2) y
+            line x+(pieceWidth / 2) y
+        end
+    end
+end
+
+on down x:num _:num
+    tower := floor x/100*3
+    if selected == -1 and (len towers[tower]) == 0
+        cls
+        print ""No pieces on that tower!""
+        return
+    else if selected == -1
+        selected = tower
+    else if selected == tower
+        selected = -1
+    else
+        movePiece selected tower
+        selected = -1
+    end
+    drawTowers
+    checkGameover tower
+end
+
+func movePiece from:num to:num
+    if (len towers[to]) > 0 and towers[from][-1] > towers[to][-1]
+        cls
+        print ""Piece too big to move there.""
+        return
+    end
+    towers[to] = towers[to] + [towers[from][-1]]
+    towers[from] = towers[from][:-1]
+end
+
+func checkGameover tower:num
+    if tower == 2 and (len towers[tower]) == numPieces
+        cls
+        print ""Well done! 🥳""
+        exit 0
+    end
+end
+
+drawTowers
+print ""Move all disks to the third pole✨.""
+"
+https://github.com/evylang/evy.git,tictactoe.evy,"// See https://evy.dev#tictactoetext for a simpler, text based version
+// x - bot
+// o - human
+
+board:[]string
+humanScore:num
+botScore:num
+botStrength := 2
+botStart := false
+turn:string
+
+font {family:""Fira Code, monospace""}
+linecap ""round""
+
+newGame
+
+func newGame
+    board = newBoard
+    if botStart
+        turn = ""x""
+        draw
+        botTurn
+    end
+    turn = ""o""
+    draw
+    botStart = !botStart
+end
+
+func newBoard:[]string
+    return [
+        ""."" ""."" "".""
+        ""."" ""."" "".""
+        ""."" ""."" "".""
+    ]
+end
+
+func drawGameover
+    msg := ""🎀 Tie.""
+    w := winner
+    if w == ""o""
+        humanScore = humanScore + 1
+        msg = ""🥳 You win!""
+    else if w == ""x""
+        botScore = botScore + 1
+        msg = ""🤖 wins.""
+    end
+    clear ""white""
+    drawBoard
+    drawWinningLine
+    drawWinningMsg msg
+    sleep 0.5
+    newGame
+end
+
+// --- graphics ---
+
+func draw
+    clear ""white""
+    drawBoard
+    drawScore
+end
+
+func drawBoard
+    // grid
+    vline 37.5 27 98 1 ""black""
+    vline 62.5 27 98 1 ""black""
+    hline 12.5 87.5 50 1 ""black""
+    hline 12.5 87.5 75 1 ""black""
+
+    // x and o
+    font {size:20}
+    for i := range 9
+        if board[i] != "".""
+            x := (getX i) - 6
+            y := (getY i) - 6
+            move x y
+            text board[i]
+        end
+    end
+end
+
+func drawScore
+    font {size:4}
+    move 13 16
+    text (sprintf ""score     🤖:%.0f    you:%.0f"" botScore humanScore)
+    move 13 10
+    text ""strength  ""+(repeatstr ""🦾"" botStrength)
+    move 13 4
+    if turn == ""x""
+        text ""turn      🤖 thinking…""
+    else if turn == ""o""
+        text ""turn      you""
+    end
+end
+
+func drawWinningLine
+    w := winner
+    if w == "".""
+        return
+    end
+    l := winningLine w
+    color ""hsl(330deg 100% 50% / 80%)""
+    width 3
+    move (getX l.i1) (getY l.i1)
+    line (getX l.i2) (getY l.i2)
+end
+
+func winningLine:{}num s:string
+    if board[0] == s and board[1] == s and board[2] == s
+        return {i1:0 i2:2}
+    else if board[3] == s and board[4] == s and board[5] == s
+        return {i1:3 i2:5}
+    else if board[6] == s and board[7] == s and board[8] == s
+        return {i1:6 i2:8}
+    else if board[0] == s and board[3] == s and board[6] == s
+        return {i1:0 i2:6}
+    else if board[1] == s and board[4] == s and board[7] == s
+        return {i1:1 i2:7}
+    else if board[2] == s and board[5] == s and board[8] == s
+        return {i1:2 i2:8}
+    else if board[0] == s and board[4] == s and board[8] == s
+        return {i1:0 i2:8}
+    else if board[2] == s and board[4] == s and board[6] == s
+        return {i1:2 i2:6}
+    end
+    return {}
+end
+
+func drawWinningMsg msg:string
+    move 13 10
+    color ""black""
+    font {size:7}
+    text msg
+    sleep 1.5
+end
+
+func getX:num i:num
+    return 24 + (i % 3) * 25
+end
+
+func getY:num i:num
+    return 88 - (floor i/3) * 25
+end
+
+func vline x:num y1:num y2:num w:num c:string
+    line2 x y1 x y2 w c
+end
+
+func hline x1:num x2:num y:num w:num c:string
+    line2 x1 y x2 y w c
+end
+
+func line2 x1:num y1:num x2:num y2:num w:num c:string
+    width w
+    color c
+    move x1 y1
+    line x2 y2
+end
+
+func repeatstr:string s:string cnt:num
+    r:string
+    for range cnt
+        r = r + s
+    end
+    return r
+end
+
+// --- game logic ---
+
+on down x:num y:num
+    if y > 25 and x > 13 and x < 87
+        i := floor (x - 12.5)/25
+        j := floor (100 - y)/25
+        humanBotTurn i+j*3
+        return
+    end
+    if x > 35 and x < 55 and y > 7 and y < 16
+        botStrength = botStrength % 3 + 1
+        draw
+        return
+    end
+end
+
+func humanBotTurn i:num
+    success := humanTurn i
+    if !success
+        return
+    end
+    if (isGameover)
+        drawGameover
+        return
+    end
+
+    turn = ""x""
+    draw
+    botTurn
+
+    turn = ""o""
+    draw
+    if (isGameover)
+        drawGameover
+    end
+end
+
+func humanTurn:bool i:num
+    if board[i] != "".""
+        return false
+    end
+    board[i] = ""o""
+    return true
+end
+
+func isGameover:bool
+    return (emptyCnt) == 0 or (winner) != "".""
+end
+
+func emptyCnt:num
+    cnt := 0
+    for i := range 9
+        if board[i] == "".""
+            cnt = cnt + 1
+        end
+    end
+    return cnt
+end
+
+func winner:string
+    if board[0] != ""."" and ((board[1] == board[0] and board[2] == board[0]) or (board[4] == board[0] and board[8] == board[0]) or (board[3] == board[0] and board[6] == board[0]))
+        return board[0]
+    end
+    if board[4] != ""."" and ((board[1] == board[4] and board[7] == board[4]) or (board[3] == board[4] and board[5] == board[4]) or (board[2] == board[4] and board[6] == board[4]))
+        return board[4]
+    end
+    if board[8] != ""."" and ((board[6] == board[8] and board[7] == board[8]) or (board[2] == board[8] and board[5] == board[8]))
+        return board[8]
+    end
+    return ""."" // no winner
+end
+
+func botTurn
+    if botStrength == 1
+        bot1Turn
+    else if botStrength == 2
+        bot2Turn
+    else
+        bot3Turn
+    end
+end
+
+func bot1Turn
+    target := rand (emptyCnt)
+    cnt := 0
+    for i := range 9
+        if board[i] == "".""
+            if target == cnt
+                board[i] = ""x""
+                return
+            end
+            cnt = cnt + 1
+        end
+    end
+end
+
+func bot2Turn
+    // try to win in next move
+    for i := range 9
+        if board[i] == "".""
+            board[i] = ""x""
+            if (winner) == ""x""
+                return
+            end
+            board[i] = "".""
+        end
+    end
+    // try to stop ""o"" from winning in next move
+    for i := range 9
+        if board[i] == "".""
+            board[i] = ""o""
+            if (winner) == ""o""
+                board[i] = ""x""
+                return
+            end
+            board[i] = "".""
+        end
+    end
+    // random move if no win or block possible
+    bot1Turn
+end
+
+func bot3Turn
+    e := emptyCnt
+    if e == 9
+        bot1Turn
+    else if e == 8 and board[4] == "".""
+        board[4] = ""x""
+    else if e == 8 // ""o"" on 4
+        corners := [0 2 6 8]
+        i := corners[rand 4]
+        board[i] = ""x""
+    else
+        board[minmax ""x"" 0] = ""x""
+    end
+end
+
+func minmax:num turn:string depth:num
+    if (isGameover)
+        return score depth
+    end
+    scores:[]num
+    moves:[]num
+    nextTurn := next turn
+    nextDepth := depth + 1
+    for i := range 9
+        if board[i] == "".""
+            board[i] = turn
+            scores = scores + [(minmax nextTurn nextDepth)]
+            moves = moves + [i]
+            board[i] = "".""
+        end
+    end
+
+    idx:num
+    if turn == ""x""
+        idx = maxIndex scores
+    else
+        idx = minIndex scores
+    end
+    if depth != 0
+        return scores[idx]
+    else
+        return moves[idx]
+    end
+end
+
+func score:num depth:num
+    w := winner
+    if w == ""x""
+        return 10 - depth
+    else if w == ""o""
+        return -10 + depth
+    end
+    return 0
+end
+
+func next:string turn:string
+    if turn == ""o""
+        return ""x""
+    end
+    return ""o""
+end
+
+func minIndex:num nums:[]num
+    nmin := nums[0]
+    idx := 0
+    for i := range 1 (len nums)
+        if nums[i] < nmin
+            nmin = nums[i]
+            idx = i
+        end
+    end
+    return idx
+end
+
+func maxIndex:num nums:[]num
+    nmax := nums[0]
+    idx := 0
+    for i := range 1 (len nums)
+        if nums[i] > nmax
+            nmax = nums[i]
+            idx = i
+        end
+    end
+    return idx
+end
+"
+https://github.com/evylang/evy.git,text.evy,"move 10 85
+text ""“Time is an illusion.""
+move 10 78
+text ""Lunchtime doubly so.”""
+
+// all font properties
+font {
+    size:4
+    style:""italic"" // ""normal""
+    family:""Tahomana, sans-serif"" // see https://developer.mozilla.org/en-US/docs/Web/CSS/font-family
+    weight:700
+    letterspacing:-0.1 // extra inter-character space
+    align:""center"" // ""right"", ""left"" (default)
+    baseline:""middle"" // ""top"", ""bottom"", ""alphabetic"" (default)
+}
+move 60 72
+color ""dodgerblue""
+text ""― Douglas Adams""
+
+color ""black""
+font {size:6 style:""normal"" letterspacing:0 align:""left"" family:""Fira Code, monospace""}
+fill ""none""
+
+move 10 50
+line 45 50
+move 10 50
+font {baseline:""bottom""}
+text ""bottom""
+
+move 10 35
+line 45 35
+move 10 35
+font {baseline:""top""}
+text ""top""
+
+move 10 20
+line 45 20
+move 10 20
+font {baseline:""middle""}
+text ""middle""
+
+move 10 5
+line 45 5
+move 10 5
+font {baseline:""alphabetic""}
+text ""alphabetic""
+
+move 70 48
+line 70 56
+move 70 50
+font {align:""left""}
+text ""left""
+
+move 70 33
+line 70 41
+move 70 35
+font {align:""right""}
+text ""right""
+
+move 70 18
+line 70 26
+move 70 20
+font {align:""center""}
+text ""center""
+"
+https://github.com/evylang/evy.git,poly.evy,"width 1
+color ""red""
+
+fill ""none""
+poly [10 80] [30 60] [50 80] [70 60] [90 80]
+
+fill ""gold""
+poly [10 20] [50 50] [20 10] [10 20]
+"
+https://github.com/evylang/evy.git,fill.evy,"width 2
+
+move 10 65
+color ""red""
+circle 7
+move 3 40
+rect 14 14
+move 3 35
+line 17 35
+
+move 30 65
+stroke ""blue""
+circle 7
+move 23 40
+rect 14 14
+move 23 35
+line 37 35
+
+move 50 65
+color ""green""
+fill ""orange""
+circle 7
+move 43 40
+rect 14 14
+move 43 35
+line 57 35
+
+move 70 65
+stroke ""deeppink""
+fill ""cyan""
+circle 7
+move 63 40
+rect 14 14
+move 63 35
+line 77 35
+
+move 90 65
+stroke ""violet""
+fill ""none""
+circle 7
+move 83 40
+rect 14 14
+move 83 35
+line 97 35
+"
+https://github.com/evylang/evy.git,circle-rect.evy,"move 20 0
+rect 10 30
+rect 20 5
+
+move 50 50
+color ""red""
+circle 10
+
+grid
+"
+https://github.com/evylang/evy.git,linestyle.evy,"width 3
+linecap ""round""
+move 5 80
+line 95 80
+
+linecap ""butt""
+move 5 70
+line 95 70
+
+linecap ""square""
+move 5 60
+line 95 60
+
+width 1
+move 5 30
+dash 5 3 1 3
+line 95 30
+
+dash
+move 5 20
+line 95 20
+"
+https://github.com/evylang/evy.git,lines.evy,"for i := range 0 100 3
+    move i 0
+    line 100 i
+end
+"
